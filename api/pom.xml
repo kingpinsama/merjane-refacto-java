@@ -380,7 +380,7 @@
 						<excludeRoot>target</excludeRoot>
 					</excludeRoots>
 					<rulesets>
-						<ruleset>pmd-rule-set.xml</ruleset>
+						<ruleset>../pmd-rule-set.xml</ruleset>
 					</rulesets>
 				</configuration>
 				<executions>

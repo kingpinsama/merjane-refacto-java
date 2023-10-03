@@ -16,4 +16,8 @@ public class NotificationService {
 
     public void sendExpirationNotification(String productName, LocalDate expiryDate) {
     }
+    public void sendFlashSaleExpirationNotification(String productName, LocalDate flashSaleEndDate ){
+
+    }
+
 }
