@@ -53,26 +53,14 @@ public class MyController {
                     }
                 }
             } else if (p.getType().equals(ProductType.SEASONAL.name())) {
-                if ((LocalDate.now().isAfter(p.getSeasonStartDate()) && LocalDate.now().isBefore(p.getSeasonEndDate())) && p.getAvailable() > 0) {
-                    p.setAvailable(p.getAvailable() - 1);
-                    pr.save(p);
-                } else {
                     ps.handleSeasonalProduct(p);
-                }
+
             } else if (p.getType().equals(ProductType.EXPIRABLE.name())) {
-                if (p.getAvailable() > 0 && p.getExpiryDate().isAfter(LocalDate.now())) {
-                    p.setAvailable(p.getAvailable() - 1);
-                    pr.save(p);
-                } else {
+
                     ps.handleExpiredProduct(p);
-                }
+
             } else if (p.getType().equals(ProductType.FLASHSALE.name())) {
-                if ((LocalDate.now().isAfter(p.getFlashSaleStartDate()) && LocalDate.now().isBefore(p.getFlashSaleEndDate())) && p.getAvailable() > 0 && p.getFlashSaleQuantity() > 0) {
-                    p.setAvailable(p.getAvailable() - 1);
-                    pr.save(p);
-                } else {
                     ps.handleFlashSaleProduct(p);
-                }
             }
         }
 

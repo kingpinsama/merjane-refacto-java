@@ -60,7 +60,7 @@ class MyControllerIntegrationTests {
     public void processOrderShouldHandleFlashSaleProductsCorrectly() throws Exception {
         // Arrange
         List<Product> allProducts = createProducts();
-        allProducts.get(0).setFlashSaleQuantity(10); // Make the first product a flash sale product.
+        allProducts.get(0).setFlashSaleQuantity(10);// Make the first product a flash sale product.
         Set<Product> orderItems = new HashSet<Product>(allProducts);
         Order order = createOrder(orderItems);
         productRepository.saveAll(allProducts);
@@ -73,9 +73,30 @@ class MyControllerIntegrationTests {
 
         // Assert
         Product product = productRepository.findById(allProducts.get(0).getId()).get();
+        assertEquals("FLASHSALE", product.getType());
         assertEquals(Optional.of(9), Optional.of(product.getFlashSaleQuantity()));
+        assertEquals(Optional.of(29), Optional.of(product.getAvailable()));
     }
 
+    @Test
+    public void processOrderShouldHandleExpirableProductsCorrectly() throws Exception {
+        // Arrange
+        List<Product> allProducts = createProducts();
+        allProducts.get(1).setAvailable(10);
+        Set<Product> orderItems = new HashSet<Product>(allProducts);
+        Order order = createOrder(orderItems);
+        productRepository.saveAll(allProducts);
+        order = orderRepository.save(order);
+
+        // Act
+        mockMvc.perform(post("/orders/{orderId}/processOrder", order.getId())
+                        .contentType("application/json"))
+                .andExpect(status().isOk());
+
+        // Assert
+        Product product = productRepository.findById(allProducts.get(1).getId()).get();
+        assertEquals(Optional.of(9), Optional.of(product.getAvailable()));
+    }
         private static Order createOrder(Set<Product> products) {
                 Order order = new Order();
                 order.setItems(products);
@@ -84,13 +105,17 @@ class MyControllerIntegrationTests {
 
         private static List<Product> createProducts() {
                 List<Product> products = new ArrayList<>();
-            products.add(new Product(null, 15, 30, "FLASHSALE", "Flashable Dummy", null, null, null, LocalDate.now().plusDays(300),
+
+                products.add(new Product(null, 15, 30, "FLASHSALE", "Flashable Dummy", null, null, null, LocalDate.now().minusDays(300),
                     LocalDate.now().plusDays(500), 10));
-                products.add(new Product(null, 15, 30, "NORMAL", "USB Cable", null, null, null, null, null, null));
-                products.add(new Product(null, 10, 0, "NORMAL", "USB Dongle", null, null, null, null, null, null));
+
+
                 products.add(new Product(null, 15, 30, "EXPIRABLE", "Butter", LocalDate.now().plusDays(26), null,
-                                null, null, null, null));
-                products.add(new Product(null, 90, 6, "EXPIRABLE", "Milk", LocalDate.now().minusDays(2), null, null, null, null, null));
+                    null, null, null, null));
+
+                                products.add(new Product(null, 15, 30, "NORMAL", "USB Cable", null, null, null, null, null, null));
+                products.add(new Product(null, 10, 0, "NORMAL", "USB Dongle", null, null, null, null, null, null));
+                                products.add(new Product(null, 90, 6, "EXPIRABLE", "Milk", LocalDate.now().minusDays(2), null, null, null, null, null));
                 products.add(new Product(null, 15, 30, "SEASONAL", "Watermelon", null, LocalDate.now().minusDays(2),
                                 LocalDate.now().plusDays(58), null, null, null));
                 products.add(new Product(null, 15, 30, "SEASONAL", "Grapes", null, LocalDate.now().plusDays(180),
